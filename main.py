@@ -21,6 +21,10 @@ class EmailSpider(scrapy.Spider):
 
     def parse(self, response):
 
+        # Handle large files by aborting processing
+        if response.status == 400 and 'download size' in response.body.decode('utf-8'):
+            return
+
         # Check for 'text/html' in the 'Content-Type' header to ensure it's an HTML response
         content_type = response.headers.get("Content-Type", b"").decode("utf-8")
         if "text/html" not in content_type:
@@ -62,6 +66,8 @@ if __name__ == "__main__":
         'AUTOTHROTTLE_START_DELAY': AUTOTHROTTLE_START_DELAY,
         'AUTOTHROTTLE_MAX_DELAY': AUTOTHROTTLE_MAX_DELAY,
         'AUTOTHROTTLE_TARGET_CONCURRENCY': AUTOTHROTTLE_TARGET_CONCURRENCY,
+        'DOWNLOAD_MAXSIZE': DOWNLOAD_MAXSIZE,
+        'DOWNLOAD_WARNSIZE': DOWNLOAD_WARNSIZE,
         'DOMAIN': DOMAIN,
         'START_URL': START_URL
     }
