@@ -5,12 +5,20 @@ from email_scraper import scrape_emails
 from scrapy import signals
 import re
 import csv
+import os
 
 print ("Starting...")
 class AstmEmailSpider(scrapy.Spider):
     name = "astm_email"
     allowed_domains = ["astm.org"]
     start_urls = ["https://www.astm.org/"]
+
+    def __init__(self, *args, **kwargs):
+        super(AstmEmailSpider, self).__init__(*args, **kwargs)
+
+        # Ensure the 'export' directory exists
+        if not os.path.exists('export'):
+            os.makedirs('export')
 
     def parse(self, response):
 
@@ -23,7 +31,7 @@ class AstmEmailSpider(scrapy.Spider):
 
         # If emails found, write them to CSV
         if emails:
-            with open("emails.csv", "a", newline="") as csvfile:
+            with open("export/emails.csv", "a", newline="") as csvfile:
                 writer = csv.writer(csvfile)
                 for email in emails:
                     writer.writerow([response.url, email])
