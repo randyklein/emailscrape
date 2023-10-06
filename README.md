@@ -6,7 +6,7 @@ The application will output the email address along with the URL the email addre
 
 The app can be ran as a python application or a docker container.  It is recommended to use a docker container so that the container can be paused or resumed if necessary.
 
-## Usage
+## Running
 
 ### Python
 * `git clone https://github.com/randyklein/emailscrape.git`
