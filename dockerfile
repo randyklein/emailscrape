@@ -14,4 +14,4 @@ RUN pip install -r requirements.txt
 #EXPOSE 6969
 
 # Command to run your application
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]
