@@ -18,7 +18,7 @@ The app can be ran as a python application or a docker container.  It is recomme
 * `git clone https://github.com/randyklein/emailscrape.git`
 * `cd emailscrape`
 * `docker build -t emailscrape .`
-* `docker run --name emailscrape -d -v /path/to/folder:/app/export emailscrape`
+* `docker run --name emailscrape -d -v /path/to/folder:/app/export --log-opt max-size=10m --log-opt max-file=3 emailscrape`
 
 #### Docker Usage
 * Pausing: `docker pause emailscrape`
