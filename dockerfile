@@ -10,8 +10,5 @@ COPY . /app
 # Install any needed packages specified in requirements.txt
 RUN pip install -r requirements.txt
 
-# Expose the port your application runs on
-#EXPOSE 6969
-
 # Command to run your application
 CMD ["python", "main.py"]
