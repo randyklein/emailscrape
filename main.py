@@ -1,20 +1,19 @@
 import scrapy
 from scrapy.crawler import CrawlerProcess
-from scrapy.utils.project import get_project_settings
 from email_scraper import scrape_emails
 from scrapy import signals
-import re
 import csv
 import os
+from settings import *
 
 print ("Starting...")
-class AstmEmailSpider(scrapy.Spider):
-    name = "astm_email"
-    allowed_domains = ["astm.org"]
-    start_urls = ["https://www.astm.org/"]
+class EmailSpider(scrapy.Spider):
+    name = "email_search"
+    allowed_domains = [DOMAIN]
+    start_urls = [START_URL]
 
     def __init__(self, *args, **kwargs):
-        super(AstmEmailSpider, self).__init__(*args, **kwargs)
+        super(EmailSpider, self).__init__(*args, **kwargs)
 
         # Ensure the 'export' directory exists
         if not os.path.exists('export'):
@@ -35,7 +34,7 @@ class AstmEmailSpider(scrapy.Spider):
                 writer = csv.writer(csvfile)
                 for email in emails:
                     writer.writerow([response.url, email])
-                    print(f"Found Email {email} at {response.url}")
+                    #print(f"Found Email {email} at {response.url}")
 
         # Extract and follow links within the page
         for link in response.css("a::attr(href)").extract():
@@ -44,12 +43,12 @@ class AstmEmailSpider(scrapy.Spider):
             if "mailto:" in link:
                 continue
 
-            if link.startswith("/") or "astm.org" in link:
+            if link.startswith("/") or DOMAIN in link:
                 yield response.follow(link, self.parse)
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
-        spider = super(AstmEmailSpider, cls).from_crawler(crawler, *args, **kwargs)
+        spider = super(EmailSpider, cls).from_crawler(crawler, *args, **kwargs)
         crawler.signals.connect(spider.spider_closed, signal=signals.spider_closed)
         return spider
 
@@ -57,13 +56,15 @@ class AstmEmailSpider(scrapy.Spider):
         print("Crawling finished!")
 
 if __name__ == "__main__":
-    settings = {
-        "LOG_LEVEL": "INFO",
-        "AUTOTHROTTLE_ENABLED": False,
-        "AUTOTHROTTLE_START_DELAY": 5,
-        "AUTOTHROTTLE_MAX_DELAY": 10,
-        "AUTOTHROTTLE_TARGET_CONCURRENCY": 1.0
+    process_settings = {
+        'LOG_LEVEL': LOG_LEVEL,
+        'AUTOTHROTTLE_ENABLED': AUTOTHROTTLE_ENABLED,
+        'AUTOTHROTTLE_START_DELAY': AUTOTHROTTLE_START_DELAY,
+        'AUTOTHROTTLE_MAX_DELAY': AUTOTHROTTLE_MAX_DELAY,
+        'AUTOTHROTTLE_TARGET_CONCURRENCY': AUTOTHROTTLE_TARGET_CONCURRENCY,
+        'DOMAIN': DOMAIN,
+        'START_URL': START_URL
     }
-    process = CrawlerProcess(settings)
-    process.crawl(AstmEmailSpider)
+    process = CrawlerProcess(process_settings)
+    process.crawl(EmailSpider)
     process.start()
