@@ -1,27 +1,22 @@
-# This script is a modified version of main.py
-#this script searches for all instances of text in the search_text list across the listed domain.
-#to run, run this script directly instead of main
-
 import scrapy
 from scrapy.crawler import CrawlerProcess
-from email_scraper import scrape_emails
 from scrapy import signals
-import csv
 import os
-from settings import *
 from bs4 import BeautifulSoup
+import fitz  # PyMuPDF for PDF
 
 # List of text strings to search for
-search_texts = ["for888565.com", "googie-anaiytics.com"]
+search_texts = ["for888565.com", "googie-anaiytics.com", "students who have demonstrated high levels of interest or involvement with ASTM Standards"]
 
 # Log file to store URLs with matches
 log_file = "export/matches.log"
 
-print ("Starting...")
+print("Starting...")
+
 class EmailSpider(scrapy.Spider):
     name = "text_search"
-    allowed_domains = [DOMAIN]
-    start_urls = [START_URL]
+    allowed_domains = ["astm.org"]
+    start_urls = ["https://www.astm.org/"]
 
     def __init__(self, *args, **kwargs):
         super(EmailSpider, self).__init__(*args, **kwargs)
@@ -31,36 +26,50 @@ class EmailSpider(scrapy.Spider):
             os.makedirs('export')
 
     def parse(self, response):
-
         # Check for 'text/html' in the 'Content-Type' header to ensure it's an HTML response
         content_type = response.headers.get("Content-Type", b"").decode("utf-8")
-        if "text/html" not in content_type:
-            return
+        if "text/html" in content_type:
+            page_content = response.text
+            soup = BeautifulSoup(page_content, 'html.parser')
+            text_found = False
 
-        page_content = response.text
+            # Search for the specified texts in the page content
+            for text in search_texts:
+                if text in page_content:
+                    with open(log_file, 'a') as log:
+                        log.write(f"Found '{text}' on {response.url}\n")
+                    text_found = True
 
-        soup = BeautifulSoup(page_content, 'html.parser')
-        text_found = False
+            # Print the URL of each page crawled
+            print(f"Crawled: {response.url}")
 
-        # Search for the specified texts in the page content
-        for text in search_texts:
-            if text in page_content:
-                with open(log_file, 'a') as log:
-                    log.write(f"Found '{text}' on {response.url}\n")
-                text_found = True
+            # Extract and follow links within the page
+            for link in response.css("a::attr(href)").extract():
+                # Filter out mailto links
+                if "mailto:" in link:
+                    continue
 
-        # Print the URL of each page crawled
-        print(f"Crawled: {response.url}")
+                if link.startswith("/") or "astm.org" in link:
+                    yield response.follow(link, self.parse)
+        elif "application/pdf" in content_type:
+            self.parse_pdf(response)
+        elif "application/msword" in content_type or "application/vnd.openxmlformats-officedocument.wordprocessingml.document" in content_type:
+            self.parse_doc(response)
 
-        # Extract and follow links within the page
-        for link in response.css("a::attr(href)").extract():
-
-            # Filter out mailto links
-            if "mailto:" in link:
-                continue
-
-            if link.startswith("/") or DOMAIN in link:
-                yield response.follow(link, self.parse)
+    def parse_pdf(self, response):
+        try:
+            doc = fitz.open(stream=response.body, filetype='pdf')
+            for page_num in range(len(doc)):
+                page = doc.load_page(page_num)
+                text = page.get_text()
+                for search_text in search_texts:
+                    if search_text in text:
+                        with open(log_file, 'a') as log:
+                            log.write(f"Found '{search_text}' in PDF on {response.url}\n")
+                        print(f"Found '{search_text}' in PDF on {response.url}")
+                        break
+        except Exception as e:
+            print(f"Failed to parse PDF {response.url}: {e}")
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
@@ -73,13 +82,11 @@ class EmailSpider(scrapy.Spider):
 
 if __name__ == "__main__":
     process_settings = {
-        'LOG_LEVEL': LOG_LEVEL,
-        'AUTOTHROTTLE_ENABLED': AUTOTHROTTLE_ENABLED,
-        'AUTOTHROTTLE_START_DELAY': AUTOTHROTTLE_START_DELAY,
-        'AUTOTHROTTLE_MAX_DELAY': AUTOTHROTTLE_MAX_DELAY,
-        'AUTOTHROTTLE_TARGET_CONCURRENCY': AUTOTHROTTLE_TARGET_CONCURRENCY,
-        'DOMAIN': DOMAIN,
-        'START_URL': START_URL
+        'LOG_LEVEL': 'INFO',
+        'AUTOTHROTTLE_ENABLED': True,
+        'AUTOTHROTTLE_START_DELAY': 2,
+        'AUTOTHROTTLE_MAX_DELAY': 5,
+        'AUTOTHROTTLE_TARGET_CONCURRENCY': 1.0,
     }
     process = CrawlerProcess(process_settings)
     process.crawl(EmailSpider)

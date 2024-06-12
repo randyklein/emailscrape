@@ -1,3 +1,4 @@
 Scrapy==2.11.0
 email-scraper==0.4
 beautifulsoup4==4.12.3
+PyMuPDF==1.24.5
