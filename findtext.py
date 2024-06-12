@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 import fitz  # PyMuPDF for PDF
 
 # List of text strings to search for
-search_texts = ["for888565.com", "googie-anaiytics.com", "students who have demonstrated high levels of interest or involvement with ASTM Standards"]
+search_texts = ["for888565.com", "googie-anaiytics.com"]
 
 # Log file to store URLs with matches
 log_file = "export/matches.log"
