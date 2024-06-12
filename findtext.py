@@ -53,8 +53,6 @@ class EmailSpider(scrapy.Spider):
                     yield response.follow(link, self.parse)
         elif "application/pdf" in content_type:
             self.parse_pdf(response)
-        elif "application/msword" in content_type or "application/vnd.openxmlformats-officedocument.wordprocessingml.document" in content_type:
-            self.parse_doc(response)
 
     def parse_pdf(self, response):
         try:
