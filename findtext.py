@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 search_texts = ["for888565.com", "googie-anaiytics.com", "astm.org/get-involved/membership.html"]
 
 # Log file to store URLs with matches
-log_file = "matches.log"
+log_file = "export/matches.log"
 
 print ("Starting...")
 class EmailSpider(scrapy.Spider):
