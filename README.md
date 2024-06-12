@@ -9,13 +9,13 @@ The app can be ran as a python application or a docker container.  It is recomme
 ## Running
 
 ### Python
-* `git clone https://github.com/randyklein/emailscrape.git`
+* `git clone https://github.com/randyklein/emailscrape.git` or `git pull` from project folder to update
 * `cd emailscrape`
 * `pip install -r requirements.txt`
 * `python3 main.py`
 
 ### Docker
-* `git clone https://github.com/randyklein/emailscrape.git`
+* `git clone https://github.com/randyklein/emailscrape.git`  or `git pull` from project folder to update
 * `cd emailscrape`
 * `docker build -t emailscrape .`
 * `docker run --name emailscrape -d -v /path/to/folder:/app/export --log-opt max-size=10m --log-opt max-file=3 emailscrape`

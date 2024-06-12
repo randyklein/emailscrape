@@ -7,5 +7,5 @@ AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
 
 
 #app
-DOMAIN = "website.org"
-START_URL = "https://www.website.org/"
+DOMAIN = "astm.org"
+START_URL = "https://www.astm.org/"
