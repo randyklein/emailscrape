@@ -1,5 +1,6 @@
 # This script is a modified version of main.py
 #this script searches for all instances of text in the search_text list across the listed domain.
+#to run, run this script directly instead of main
 
 import scrapy
 from scrapy.crawler import CrawlerProcess
