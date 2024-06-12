@@ -12,7 +12,7 @@ from settings import *
 from bs4 import BeautifulSoup
 
 # List of text strings to search for
-search_texts = ["for888565.com", "googie-anaiytics.com", "astm.org/get-involved/membership.html"]
+search_texts = ["for888565.com", "googie-anaiytics.com"]
 
 # Log file to store URLs with matches
 log_file = "export/matches.log"
